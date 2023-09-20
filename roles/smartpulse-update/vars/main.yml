@@ -1,0 +1,31 @@
+customer_provider: "ORS"
+customer_reseller: "ORS"
+region: "EMEA"
+
+metricbeatpasswd: "cR3hN7Xffb8yIiQBTuVt"
+smartpulsepasswd: "Pq886Q7BJ4ULYGfKPpp8"
+
+esstg:
+  Plateform: "ESSTG"
+  location:
+    lat: "48.208176"
+    lon: "16.373819"
+  tagPF: "STAGING"
+ixstg:
+  Plateform: "IXSTG"
+  location:
+    lat: "48.175790"
+    lon: "16.291450"
+  tagPF: "STAGING"
+ix:
+  Plateform: "IX"
+  location:
+    lat: "48.175790"
+    lon: "16.291450"
+  tagPF: "PROD"
+es:
+  Plateform: "ES"
+  location:
+    lat: "48.208176"
+    lon: "16.373819"
+  tagPF: "PROD"

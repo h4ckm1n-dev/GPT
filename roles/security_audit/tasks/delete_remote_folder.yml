@@ -1,0 +1,9 @@
+- name: Remove Security Audit directory
+  file:
+    path: "{{ remote_dir }}"
+    state: absent
+
+- name: Remove Security Audit Report
+  file:
+    path: "/opt/support/{{ report_name }}"
+    state: absent

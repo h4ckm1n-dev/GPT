@@ -1,0 +1,18 @@
+- name: Upload smartpulse configuration files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: './templates/metricbeat.j2', dest: '/etc/vector/metricbeat.toml' }
+    - { src: './templates/outputs.j2', dest: '/etc/vector/outputs.toml' }
+    - { src: './templates/smartpulse.j2', dest: '/etc/vector/smartpulse.toml' }
+
+- name: Run script
+  command: /etc/broadpeak/smartpulse/vector/configure_contextual_kpi.sh -t 7 -r {{ customer.provider }} -p OR
+  
+- name: Restart services
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  loop:
+    - smartpulse

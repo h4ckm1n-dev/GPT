@@ -1,0 +1,1 @@
+log_exporter_command: "/usr/bin/python3 /opt/support/log_exporter/BKS100_support.py >> /var/log/log_exporter/BKS350_support.log 2>&1"

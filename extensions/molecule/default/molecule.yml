@@ -1,0 +1,39 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: pr-npvr-bks350
+    image: custom-rhel
+    pre_build_image: true
+    command: /bin/sh -c "yum update -y && yum install -y python3 && while true; do sleep 1000; done"
+    environment:
+      ANSIBLE_PYTHON_INTERPRETER: /usr/bin/python3
+  - name: pr-npvr-bkm100
+    image: custom-rhel
+    pre_build_image: true
+    command: /bin/sh -c "yum update -y && yum install -y python3 && while true; do sleep 1000; done"
+    environment:
+      ANSIBLE_PYTHON_INTERPRETER: /usr/bin/python3
+  - name: pp-vod-bks350
+    image: custom-rhel
+    pre_build_image: true
+    command: /bin/sh -c "yum update -y && yum install -y python3 && while true; do sleep 1000; done"
+    environment:
+      ANSIBLE_PYTHON_INTERPRETER: /usr/bin/python3
+  - name: pp-vod-bks400
+    image: custom-rhel
+    pre_build_image: true
+    command: /bin/sh -c "yum update -y && yum install -y python3 && while true; do sleep 1000; done"
+    environment:
+      ANSIBLE_PYTHON_INTERPRETER: /usr/bin/python3
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      # Use the Docker connection plugin
+      ansible_connection: docker
+verifier:
+  name: ansible
+  

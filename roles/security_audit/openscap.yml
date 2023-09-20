@@ -1,0 +1,17 @@
+---
+- name: Running OpenSCAP security audit playbook
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Upload OpenSCAP
+      include_tasks: tasks/upload_openscap.yml
+
+    - name: Run OpenSCAP
+      include_tasks: tasks/run_openscap.yml
+
+    - name: Download report
+      include_tasks: tasks/download_report.yml
+
+    - name: Delete remote files
+      include_tasks: tasks/delete_remote_files.yml

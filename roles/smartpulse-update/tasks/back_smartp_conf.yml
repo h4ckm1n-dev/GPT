@@ -1,0 +1,7 @@
+---
+- name: Backup configuration files
+  command: cp {{ item }} {{ item }}.bak
+  loop:
+    - /etc/vector/output.toml
+    - /etc/vector/smartpulse.toml
+    - /etc/vector/metricbeat.toml

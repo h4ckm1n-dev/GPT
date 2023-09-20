@@ -1,0 +1,6 @@
+- name: Fetch audit report
+  fetch:
+    src: "/opt/support/{{ report_name }}"
+    dest: "{{ report_local_dir }}"
+    flat: yes
+    validate_checksum: no

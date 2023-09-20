@@ -1,0 +1,7 @@
+---
+- name: Accept the remote host's fingerprint
+  known_hosts:
+    name: "{{ ansible_host }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan ' + ansible_host) }}"
+    state: present
+  delegate_to: localhost

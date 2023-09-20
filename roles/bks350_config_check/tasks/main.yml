@@ -1,0 +1,24 @@
+---
+- name: Check App Configuration
+  hosts: all
+  tasks:
+    - name: Check if configuration file exists
+      stat:
+        path: /path/to/your/app/config.file
+      register: config_status
+
+    - name: Display warning if configuration file doesn't exist
+      debug:
+        msg: "Warning: Configuration file missing on {{ ansible_hostname }}"
+      when: not config_status.stat.exists
+
+    - name: Compare configuration file with the standard
+      command: diff /path/to/your/app/config.file /path/to/standard/config.file
+      register: diff_output
+      changed_when: false
+      failed_when: diff_output.rc > 1
+
+    - name: Display differences
+      debug:
+        msg: "{{ diff_output.stdout }}"
+      when: diff_output.rc == 1

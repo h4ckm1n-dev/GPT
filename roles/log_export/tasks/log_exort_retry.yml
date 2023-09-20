@@ -1,0 +1,9 @@
+- name: Install cron job for script log_exporter_retry.sh
+  ansible.builtin.cron:
+    name: "log_exporter.sh weekday"
+    user: root
+    minute: "{{ cron_minute }}"
+    hour: "{{ cron_hour }}"
+    day: "*"
+    weekday: "1-5"
+    job: "/usr/local/bin/log_exporter/log_exporter_retry.sh -scp > /dev/null 2>&1"

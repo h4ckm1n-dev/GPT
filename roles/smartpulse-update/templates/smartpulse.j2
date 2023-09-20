@@ -1,0 +1,58 @@
+# version: 2.0
+#
+# INTERNAL (broadpeak only)
+#
+[sources.smartpulse_internal_kpi]
+type = "file"
+include = ["/opt/broadpeak/smartpulse/data/*/internal/*.kpi","/opt/broadpeak/smartpulse/data/*/alarms/*.kpi"]
+remove_after_secs = 120
+oldest_first = true
+# Change fingerprint default behavior cause some kpi file could have same first line (privateCopyMgr)
+fingerprint.strategy = "checksum"
+fingerprint.lines = 1
+fingerprint.ignored_header_bytes = 0
+
+[transforms.smartpulse_internal]
+type = "remap"
+inputs = ["smartpulse_internal_kpi"]
+drop_on_error = true
+source = '''
+. = parse_json!(string!(.message))
+##################COCKPIT FIELDS
+.customer.provider={{customer.provider}}
+.customer.reseller={{customer.provider}}
+.product.type={{product_type}}
+.host="${HOSTNAME}"
+#location you can find on https://www.latlong.net/
+.location.lat={{location.lat}}
+.location.lon={{location.lon}}
+#tagPG APAC or EMEA or AMER
+.region={{region}}
+#tagPG STAGING or PROD
+.tagPF={{tagPF}}
+#Platform Platform ID name
+.Platform={{Platform}}
+event_time = parse_timestamp(.@timestamp, format: "%+") ?? now()
+.@metadata.index2 = format_timestamp!(event_time, format: join!([.@metadata.index, "-%Y.%m.%d"]))
+##################
+'''
+
+
+#
+# EXTERNAL (for customers)
+#
+[sources.smartpulse_external_kpi]
+type = "file"
+include = ["/opt/broadpeak/smartpulse/data/*/external/*.kpi","/opt/broadpeak/smartpulse/data/*/alarms/*.kpi"]
+remove_after_secs = 120
+oldest_first = true
+
+[transforms.smartpulse_external]
+type = "remap"
+inputs = ["smartpulse_external_kpi"]
+drop_on_error = true
+source = '''
+. = parse_json!(string!(.message))
+.product.type = parse_regex(.@metadata.index, r'^bk-(?P<type>[^-.h]+)').type ?? "unknown"
+.host="${HOSTNAME}"
+'''

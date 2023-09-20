@@ -1,0 +1,11 @@
+---
+- name: Smartpulse Update Playbook
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: backup smartpulse configuration files
+      include_tasks: tasks/back_smartp_conf.yml
+      
+    - name: update smartpulse configuration files
+      include_tasks: tasks/up_smartp_conf.yml

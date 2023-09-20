@@ -1,0 +1,5 @@
+zip_local_path: ./files/BpkSecurityAuditScanner-master.zip
+remote_dir: /home/supportbpk/Security_Audit
+script_name: scan.sh
+report_name: "BPK-Audit-Reports_{{ ansible_hostname }}.zip"
+report_local_dir: ./files/reports

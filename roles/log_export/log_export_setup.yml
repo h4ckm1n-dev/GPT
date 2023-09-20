@@ -1,0 +1,11 @@
+---
+- name: Uploading OpenSCAP security audit playbook
+  hosts: bks350,bks400,bkm100
+  become: yes
+
+  tasks:
+    - name: Upload Script
+      include_tasks: tasks/log_export_upload.yml
+
+    - name: Configure logrotate
+      include_tasks: tasks/log_rotate.yml

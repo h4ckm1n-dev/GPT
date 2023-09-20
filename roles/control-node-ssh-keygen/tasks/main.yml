@@ -1,0 +1,11 @@
+---
+- name: Check if SSH key exists on the control node
+  stat:
+    path: "~/.ssh/id_rsa"
+  register: ssh_key_check
+  delegate_to: localhost
+
+- name: Generate SSH key on the control node if it doesn't exist
+  command: ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+  when: not ssh_key_check.stat.exists
+  delegate_to: localhost

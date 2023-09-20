@@ -1,0 +1,113 @@
+# add there outputs for the smartpulse and metricbeat kpi
+
+#### Former Cockpit configuration
+
+# BKA200 AWS outputs
+#[sinks.metricbeat_bka200AWS_output]
+#type = "elasticsearch"
+#api_version = "v6"
+#inputs = ["metricbeat"]
+#endpoint = "https://10.160.61.115:9200"
+#bulk.index = "{{ @metadata.index }}"
+#encoding.except_fields = ["@metadata","agent","ecs","host.os","host.architecture","host.id","host.containerized","host.containerized","host.name","event","metricset","service"]
+#batch.timeout_secs = 10
+#batch.max_bytes = 10000
+#auth.strategy = "basic"
+#auth.user = "metricbeat_writer"
+#auth.password = "#MetricBeatWriter#"
+#tls.ca_file = "/etc/broadpeak/smartpulse/ssl/root-ca.pem"
+#tls.verify_hostname = false
+#healthcheck.enabled = false
+#request.concurrency = 10000
+
+#[sinks.smartpulse_bka200AWS_output]
+#type = "elasticsearch"
+#api_version = "v6"
+#inputs = ["smartpulse_internal"]
+#endpoint = "https://10.160.61.115:9200"
+#bulk.index = "{{ @metadata.index }}"
+#encoding.except_fields = ["@metadata"]
+#batch.timeout_secs = 10
+#batch.max_bytes = 10000
+#auth.strategy = "basic"
+#auth.user = "smartpulse"
+#auth.password = "#Smartpulse"
+#tls.ca_file = "/etc/broadpeak/smartpulse/ssl/root-ca.pem"
+#tls.verify_hostname = false
+#healthcheck.enabled = false
+#request.concurrency = 10000
+
+####
+
+#### Local BkA200 Configuration 
+
+[sinks.metricbeat_bka200_output]
+type = "elasticsearch"
+api_version = "v7"
+inputs = ["metricbeat"]
+endpoints = ["https://bka200-server:9200"]
+bulk.index = "{{ @metadata.index }}"
+encoding.except_fields = ["@metadata","agent","ecs","host.os","host.architecture","host.id","host.containerized","host.name","event","metricset","service"]
+batch.timeout_secs = 10
+batch.max_bytes = 10000
+auth.strategy = "basic"
+auth.user = "metricbeat_writer"
+auth.password = "#MetricBeatWriter#"
+tls.ca_file = "/etc/broadpeak/smartpulse/ssl/root-ca.pem"
+tls.verify_hostname = false
+healthcheck.enabled = false
+ 
+[sinks.smartpulse_bka200_output]
+type = "elasticsearch"
+api_version = "v7"
+inputs = ["smartpulse_internal"]
+endpoints = ["https://bka200-server:9200"]
+bulk.index = "{{ @metadata.index }}"
+encoding.except_fields = ["@metadata"]
+batch.timeout_secs = 10
+batch.max_bytes = 10000
+auth.strategy = "basic"
+auth.user = "smartpulse"
+auth.password = "#Smartpulse"
+tls.ca_file = "/etc/broadpeak/smartpulse/ssl/root-ca.pem"
+tls.verify_hostname = false
+healthcheck.enabled = false
+
+####
+
+#### Cockpit configuration
+# Elastic Cloud
+[sinks.metricbeat_POC_elastic]
+type = "elasticsearch"
+api_version = "v8"
+inputs = ["metricbeat"]
+endpoints = ["https://cockpit.es.eu-west-3.aws.elastic-cloud.com:9243"]
+bulk.index = "{{ @metadata.index }}"
+encoding.except_fields = ["@metadata","agent","ecs","host.os","host.architecture","host.id","host.containerized","host.name","event","metricset","service"]
+batch.timeout_secs = 10
+batch.max_bytes = 10000
+auth.strategy = "basic"
+auth.user = "metricbeat_writer"
+auth.password = {{metricbeatpasswd}}
+tls.ca_file = "/etc/broadpeak/smartpulse/ssl/elastic.crt"
+tls.verify_hostname = true
+tls.verify_certificate = false
+healthcheck.enabled = false
+
+[sinks.smartpulse_elastic]
+type = "elasticsearch"
+api_version = "v8"
+inputs = ["smartpulse_internal"]
+endpoints = ["https://cockpit.es.eu-west-3.aws.elastic-cloud.com:9243"]
+bulk.index = "{{ @metadata.index2 }}"
+encoding.except_fields = ["@metadata"]
+batch.timeout_secs = 10
+batch.max_bytes = 10000
+auth.strategy = "basic"
+auth.user = "smartpulse_writer"
+auth.password = {{smartpulsepasswd}}
+tls.ca_file = "/etc/broadpeak/smartpulse/ssl/elastic.crt"
+tls.verify_hostname = true
+tls.verify_certificate = false
+healthcheck.enabled = false
+####

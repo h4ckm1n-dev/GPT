@@ -1,0 +1,35 @@
+---
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: "{{ molecule_no_log }}"
+  tasks:
+    - name: Check if Docker image exists locally
+      docker_image_info:
+        name: "{{ item.image }}"
+      register: docker_image_info
+      with_items: "{{ molecule_yml.platforms }}"
+
+    - name: Pull Docker image if not present
+      docker_image:
+        name: "{{ item.image }}"
+        source: pull
+      when: not item['images']
+      with_items: "{{ docker_image_info.results }}"
+
+    - name: Create molecule instance(s)
+      docker_container:
+        name: "{{ item.name }}"
+        image: "{{ item.image }}"
+        state: started
+        recreate: false
+        log_driver: json-file
+        command: "{{ item.command | default('bash -c \"while true; do sleep 10000; done\"') }}"
+        privileged: "{{ item.privileged | default(omit) }}"
+        security_opts: "{{ item.security_opts | default(omit) }}"
+        volumes: "{{ item.volumes | default(omit) }}"
+        capabilities: "{{ item.capabilities | default(omit) }}"
+        exposed_ports: "{{ item.exposed_ports | default(omit) }}"
+        published_ports: "{{ item.published_ports | default(omit) }}"
+      with_items: "{{ molecule_yml.platforms }}"

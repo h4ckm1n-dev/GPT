@@ -1,0 +1,32 @@
+# version: 2.0
+[sources.metricbeat_log]
+type = "file"
+include = ["/opt/broadpeak/smartpulse/metricbeat-events/metrics.log"]
+
+[transforms.metricbeat]
+type = "remap"
+inputs = ["metricbeat_log"]
+drop_on_error = true
+source = '''
+. = parse_json!(string!(.message))
+# for BkA200 version <1.3.0
+event_time = parse_timestamp(.@timestamp, format: "%+") ?? now()
+.@metadata.index = format_timestamp!(event_time, format: "metricbeat-7.10.0-%Y.%m.%d")
+##################COCKPIT FIELDS
+.customer.provider="ORS"
+.customer.reseller="ORS"
+.product.type={{product_type}}
+.host.hostname="${HOSTNAME}"
+#location you can find on https://www.latlong.net/
+.location.lat={{location.lat}}
+.location.lon={{location.lon}}
+#tagPG APAC or EMEA or AMER
+.region="EMEA"
+#tagPG STAGING or PROD
+.tagPF={{tagPF}}
+#Platform Platform ID name
+.Platform={{Platform}}
+##################
+# for BkA200 version >=1.3.0
+# .@metadata.index = "metricbeat-7.4.0"
+'''

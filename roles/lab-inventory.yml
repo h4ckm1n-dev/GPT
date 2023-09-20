@@ -1,0 +1,36 @@
+all:
+  children:
+    pp:
+      children:
+        bks400:
+          hosts:
+            pp-npvr-bks400:
+              ansible_host: 127.0.0.1
+              ansible_port: 2222
+              ansible_user: ansible
+        bka200:
+          hosts:
+            pp-npvr-bka200:
+              ansible_host: 127.0.0.1
+              ansible_port: 2224
+              ansible_user: ansible
+        bkm100:
+          hosts:
+            pp-vod-bkm100:
+              ansible_host: 127.0.0.1
+              ansible_port: 2220
+              ansible_user: ansible
+    pr:
+      children:
+        bks350:
+          hosts:
+            pr-npvr-bks350:
+              ansible_host: 127.0.0.1
+              ansible_port: 2221
+              ansible_user: ansible
+        bka200:
+          hosts:
+            pr-vod-bka200:
+              ansible_host: 127.0.0.1
+              ansible_port: 2223
+              ansible_user: ansible

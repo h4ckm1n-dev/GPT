@@ -1,0 +1,201 @@
+#!/bin/bash
+
+# Fetch the transfer method from script argument
+transfer_method=$1
+
+# Set the source file and destination paths
+source_dir="/var/log/broadpeak/bks350/support-package/"
+destination_scp1="supportbpk@10.3.3.7:~/log_storage/vod"
+destination_scp2="supportbpk@10.3.3.8:~/log_storage/vod"
+destination_s3_1="s3://broadpeak/log_exporter/bucket1/"
+destination_s3_2="s3://broadpeak/log_exporter/bucket2/"
+
+# Set the S3 endpoint URL
+s3_endpoint="http://magentatv.com"
+
+# Define log file path
+log_file="/var/log/log_exporter/cron.json"
+
+# Maximum attempts to transfer a file
+max_attempts=3
+
+# Transferred files list
+transferred_files_list="/var/log/log_exporter/transfert_hist.json"
+
+# Create log folder if it doesn't exist
+log_folder="/var/log/log_exporter"
+if [ ! -d "$log_folder" ]; then
+  mkdir -p "$log_folder"
+fi
+
+# Check for user input
+if [ $# -eq 0 ]; then
+    echo "No arguments provided. Please specify '-scp' or '-s3' as the argument."
+    exit 1
+elif [[ $1 != "-scp" && $1 != "-s3" ]]; then
+    echo "Invalid argument. Please specify '-scp' or '-s3'."
+    exit 1
+fi
+
+log() {
+    local type=$1
+    shift
+    local message=$@
+
+    local status
+    if [ "$type" == "Error" ]; then
+        status=2
+    elif [ "$type" == "Warning" ]; then
+        status=1
+    elif [ "$type" == "Info" ]; then
+        status=0
+    else
+        echo "Invalid type: $type"
+        return
+    fi
+
+    local hostname=$(hostname)
+
+    log_message=$(python3 -c "import json, datetime; print(json.dumps({'timestamp': str(datetime.datetime.now()), 'type': '${type}', 'message': '${message}', 'status': ${status}, 'hostname': '${hostname}'}))")
+
+    echo "${log_message}" >> "${log_file}"
+}
+
+# Function to transfer files using scp
+transfer_files_scp() {
+    local source=$1
+    local destination=$2
+    local filename=$(basename "${source}")
+    local dst_path="${destination%%:*}:${destination#*:}/${filename}"
+
+    # Get source file checksum
+    local src_checksum=$(sha256sum "${source}" | awk '{ print $1 }')
+
+    for ((i=1; i<=max_attempts; i++)); do
+        log "Info" "Transferring file to ${dst_path} (Attempt $i)..."
+        scp_output=$(scp "${source}" "${dst_path}" 2>&1)
+
+        if [ $? -eq 0 ]; then
+            # Get destination file checksum
+            local dst_checksum=$(ssh ${destination%%:*} "sha256sum ${destination#*:}/${filename}" | awk '{ print $1 }')
+
+            if [ "$src_checksum" == "$dst_checksum" ]; then
+                log "Info" "File transfer to ${dst_path} completed."
+                log "Info" "Checksum verification for ${dst_path} succeeded."
+                log "Info" "$scp_output"
+
+                # Add source file and destination to the transferred files list
+                local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")  # Use ISO 8601 timestamp format
+                echo "{\"timestamp\": \"${timestamp}\", \"file\": \"${source}\", \"destination\": \"${dst_path}\"}" >> "${transferred_files_list}"
+
+                return 0
+            else
+                log "Warning" "Checksum mismatch for ${dst_path}. Retrying transfer..."
+                continue
+            fi
+        else
+            log "Warning" "File transfer to ${dst_path} failed. Retrying..."
+            log "Error" "$scp_output"
+            continue
+        fi
+    done
+    log "Error" "File transfer to ${dst_path} failed after ${max_attempts} attempts."
+    return 1
+}
+
+# Function to transfer files using AWS S3
+transfer_files_s3() {
+    local source=$1
+    local destination=$2
+
+    for ((i=1; i<=max_attempts; i++)); do
+        log "Info" "Transferring file to ${destination} (Attempt $i)..."
+        aws_output=$(aws s3 cp "${source}" "${destination}" --endpoint-url "$s3_endpoint" 2>&1)
+
+        if [ $? -eq 0 ]; then
+            log "Info" "File transfer to ${destination} completed."
+            log "Info" "$aws_output"
+
+            # Add source file and destination to the transferred files list
+            local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")  # Use ISO 8601 timestamp format
+            echo "{\"timestamp\": \"${timestamp}\", \"file\": \"${source}\", \"destination\": \"${destination}\"}" >> "${transferred_files_list}"
+            return 0
+        else
+            log "Warning" "File transfer to ${destination} failed. Retrying..."
+            log "Error" "$aws_output"
+            continue
+        fi
+    done
+
+    log "Error" "File transfer to ${destination} failed after ${max_attempts} attempts."
+    return 1
+}
+
+# Execute BKS350_support.py
+log "Info" "Executing BKS350_support.py script..."
+{{ log_exporter_command }}
+
+# Check if the script executed successfully
+if [ $? -eq 0 ]; then
+    log "Info" "BKS350_support.py executed successfully. Moving last compressed logs."
+
+    # Get last transferred file's timestamp
+    last_file_time=$(tail -n 1 ${transferred_files_list} | python3 -c 'import json,sys; print(json.load(sys.stdin)["timestamp"])')
+
+    # Get new files
+    new_files=$(find ${source_dir} -name '*.tar.gz' -newermt "${last_file_time}")
+
+        for file in $new_files; do
+        # If -scp is passed in, transfer using SCP
+        if [[ "${transfer_method}" == "-scp" ]]; then
+            scp1_success=false
+            scp2_success=false
+
+            if transfer_files_scp "${file}" "${destination_scp1}"; then
+                scp1_success=true
+            else
+                log "Error" "Aborting due to failed file transfer to ${destination_scp1}."
+                continue
+            fi
+
+            if transfer_files_scp "${file}" "${destination_scp2}"; then
+                scp2_success=true
+            else
+                log "Error" "Aborting due to failed file transfer to ${destination_scp2}."
+                continue
+            fi
+
+            if $scp1_success && $scp2_success; then
+                rm "${file}"
+            fi
+        # If -s3 is passed in, transfer using S3
+        elif [[ "${transfer_method}" == "-s3" ]]; then
+            s3_1_success=false
+            s3_2_success=false
+
+            if transfer_files_s3 "${file}" "${destination_s3_1}"; then
+                s3_1_success=true
+            else
+                log "Error" "Aborting due to failed file transfer to ${destination_s3_1}."
+                continue
+            fi
+
+            if transfer_files_s3 "${file}" "${destination_s3_2}"; then
+                s3_2_success=true
+            else
+                log "Error" "Aborting due to failed file transfer to ${destination_s3_2}."
+                continue
+            fi
+
+            if $s3_1_success && $s3_2_success; then
+                rm "${file}"
+            fi
+        else
+            log "Error" "Invalid transfer method specified. Use -scp or -s3."
+            exit 1
+        fi
+    done
+else
+    log "Error" "BKS350_support.py failed to execute. Aborting file transfer."
+    exit 1
+fi

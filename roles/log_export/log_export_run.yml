@@ -1,0 +1,8 @@
+---
+- name: Runing log_export
+  hosts: bks350,bks400,bkm100
+  become: yes
+
+  tasks:
+    - name: Run Export
+      include_tasks: tasks/log_export.yml

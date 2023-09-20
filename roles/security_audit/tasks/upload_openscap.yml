@@ -1,0 +1,25 @@
+- name: Ensure remote directory exists
+  file:
+    path: "{{ remote_dir }}"
+    state: directory
+- name: Ensure unzip is installed
+  package:
+    name: unzip
+    state: present
+
+- name: Upload and extract audit script
+  unarchive:
+    src: "{{ zip_local_path }}"
+    dest: "{{ remote_dir }}"
+    remote_src: no
+    
+- name: Upload and extract audit script
+  unarchive:
+    src: "{{ zip_local_path }}"
+    dest: "{{ remote_dir }}"
+    remote_src: no
+
+- name: Set script permissions
+  file:
+    path: "{{ remote_dir }}/bpksecurityauditscanner/{{ script_name }}"
+    mode: '0755'

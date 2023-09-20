@@ -1,0 +1,20 @@
+- name: Check if SNMP is running
+  command: systemctl is-active snmpd.service
+  register: snmpd_status
+  ignore_errors: true
+  changed_when: false
+
+- name: Ensure /etc/snmp directory exists
+  file:
+    path: /etc/snmp
+    state: directory
+    mode: '0755'
+
+- name: Ensure SNMP configurations are present
+  template:
+    src: snmpd.j2
+    dest: /etc/snmp/snmpd.conf
+
+- name: Restart SNMP service if it was running
+  command: systemctl restart snmpd.service
+  when: snmpd_status.stdout == "active"

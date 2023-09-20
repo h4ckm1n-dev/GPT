@@ -1,0 +1,12 @@
+---
+- name: Get the SSH public key from the control node
+  slurp:
+    src: "~/.ssh/id_rsa.pub"
+  register: ssh_public_key
+  delegate_to: localhost
+
+- name: Add the SSH public key to the remote host's authorized_keys
+  authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ ssh_public_key['content'] | b64decode }}"

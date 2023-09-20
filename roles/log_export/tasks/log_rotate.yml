@@ -1,0 +1,5 @@
+- name: Copy logrotate configuration file and restart logrotate service
+  copy:
+    src: "./log_export_logrotate.conf"
+    dest: "/etc/logrotate.d/log_exporter_logrotate.conf"
+  notify: restart logrotate

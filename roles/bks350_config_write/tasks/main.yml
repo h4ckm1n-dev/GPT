@@ -1,0 +1,29 @@
+---
+- name: Correct App Configuration
+  hosts: all
+  tasks:
+    - name: Check if configuration file exists
+      stat:
+        path: /path/to/your/app/config.file
+      register: config_status
+
+    - name: Compare configuration file with the standard
+      command: diff /path/to/your/app/config.file /path/to/standard/config.file
+      register: diff_output
+      changed_when: false
+      ignore_errors: true
+
+    - name: Copy standard configuration to servers with discrepancies
+      copy:
+        src: /path/to/standard/config.file
+        dest: /path/to/your/app/config.file
+        owner: app_user
+        group: app_group
+        mode: '0644'
+      when: diff_output.rc == 1 or not config_status.stat.exists
+
+    - name: Restart the app service (if required)
+      service:
+        name: your_app_service_name
+        state: restarted
+      when: diff_output.rc == 1 or not config_status.stat.exists

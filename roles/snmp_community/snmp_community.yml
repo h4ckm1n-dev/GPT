@@ -1,0 +1,13 @@
+---
+- name: snmp_community
+  hosts: all
+  become: yes
+  gather_facts: true
+
+  tasks:
+    - name: update Snmp Community
+      include_tasks: tasks/snmp_community.yml
+
+  handlers:
+    - name: restart snmpd
+      import_tasks: handlers/snmpd.yml

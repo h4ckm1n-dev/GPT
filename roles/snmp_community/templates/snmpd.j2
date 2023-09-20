@@ -1,0 +1,6 @@
+rocommunity {{ community_string }}
+{% if 'bks350' in group_names or 'bkm100' in group_names %}
+dlmod {{ BpkBkSnmpMod }} {{ dlmod_path }}
+{% endif %}
+agentaddress {{ local_agentaddress }},{{ remote_agentaddress }}
+dontLogTCPWrappersConnects {{ dont_log_tcp_wrappers_connects }}

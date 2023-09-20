@@ -1,0 +1,5 @@
+community_string: broadpeak-a4d7e6
+dlmod_path: /usr/local/broadpeak/CdnToolkit/current/snmp/lib/libBpkBkmSnmpMod.so
+local_agentaddress: udp:127.0.0.1:161
+remote_agentaddress: "udp:{{ ansible_default_ipv4.address }}:161"
+dont_log_tcp_wrappers_connects: yes

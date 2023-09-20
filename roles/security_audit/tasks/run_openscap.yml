@@ -1,0 +1,3 @@
+- name: Run audit script with sudo privileges
+  command: "{{ remote_dir }}/bpksecurityauditscanner/{{ script_name }}"
+  become: yes
