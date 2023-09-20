@@ -1,0 +1,10 @@
+- name: Install cron jobs
+  ansible.builtin.cron:
+    name: "{{ item.name }}"
+    user: "{{ item.user }}"
+    minute: "{{ item.minute }}"
+    hour: "{{ item.hour }}"
+    day: "{{ item.day }}"
+    weekday: "{{ item.weekday }}"
+    job: "{{ item.job }}"
+  loop: "{{ cron_jobs }}"

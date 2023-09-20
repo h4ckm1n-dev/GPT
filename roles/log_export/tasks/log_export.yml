@@ -1,2 +1,0 @@
-- name: Execute the bash script with sudo
-  command: /usr/local/bin/log_exporter/log_exporter.sh -scp

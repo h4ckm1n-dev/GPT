@@ -1,0 +1,5 @@
+- name: Include log_export_upload tasks
+  include_tasks: log_export_upload.yml
+
+- name: Include log_rotate tasks
+  include_tasks: log_rotate.yml

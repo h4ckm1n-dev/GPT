@@ -23,3 +23,17 @@
   file:
     path: "{{ remote_dir }}/bpksecurityauditscanner/{{ script_name }}"
     mode: '0755'
+
+- name: Install required packages
+  ansible.builtin.package:
+    name:
+      - hostname
+      - net-tools  # This package provides netstat
+      - zip
+    state: present
+
+- name: Install OpenSCAP
+  ansible.builtin.package:
+    name: openscap-scanner  # The package name might differ based on your OS
+    state: present
+

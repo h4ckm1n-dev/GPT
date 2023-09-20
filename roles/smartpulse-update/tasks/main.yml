@@ -1,0 +1,7 @@
+# Backup SmartPulse Configuration
+- name: Backup SmartPulse Configuration
+  include_tasks: back_smartp_conf.yml
+
+# Update SmartPulse Configuration
+- name: Update SmartPulse Configuration
+  include_tasks: up_smartp_conf.yml

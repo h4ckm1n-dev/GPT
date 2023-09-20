@@ -1,2 +1,2 @@
 ---
-- import_playbook: ../../../playbooks/ssh-management.yml
+- import_playbook: ../../../playbooks/test-routines.yml

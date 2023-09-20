@@ -1,0 +1,19 @@
+# Upload OpenSCAP
+- name: Upload OpenSCAP
+  include_tasks: upload_openscap.yml
+
+# Run OpenSCAP
+- name: Run OpenSCAP
+  include_tasks: run_openscap.yml
+
+# Download report
+- name: Download report
+  include_tasks: download_report.yml
+
+# Delete remote folder
+- name: Delete remote folder
+  include_tasks: delete_remote_folder.yml
+
+
+
+

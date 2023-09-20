@@ -1,0 +1,11 @@
+---
+- hosts: all
+  roles:
+    - { role: '/home/h4ckm1n/DevOps/Playbook/broadpeak/cockpit/roles/userconf' }
+    - { role: '/home/h4ckm1n/DevOps/Playbook/broadpeak/cockpit/roles/control-node-ssh-keygen' }
+    - { role: '/home/h4ckm1n/DevOps/Playbook/broadpeak/cockpit/roles/fingerprint-accept' }
+    - { role: '/home/h4ckm1n/DevOps/Playbook/broadpeak/cockpit/roles/ssh-key-upload' }
+    - { role: '/home/h4ckm1n/DevOps/Playbook/broadpeak/cockpit/roles/snmp_community' }
+    - { role: '/home/h4ckm1n/DevOps/Playbook/broadpeak/cockpit/roles/security_audit' }
+    #- { role: '/home/h4ckm1n/DevOps/Playbook/broadpeak/cockpit/roles/smartpulse-update' }
+    #- { role: '/home/h4ckm1n/DevOps/Playbook/broadpeak/cockpit/roles/log-export-config' }

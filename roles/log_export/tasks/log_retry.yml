@@ -1,2 +1,0 @@
-- name: Execute the Python script with sudo
-  command: /usr/local/bin/log_exporter/log_exporter_retry.sh

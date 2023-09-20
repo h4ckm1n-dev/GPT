@@ -1,0 +1,44 @@
+- name: Create supportbpk user
+  ansible.builtin.user:
+    name: supportbpk
+    state: present
+    shell: /bin/bash
+    groups: wheel
+    append: yes
+
+- name: Ensure /home/supportbpk/.ssh directory exists
+  ansible.builtin.file:
+    path: /home/supportbpk/.ssh
+    state: directory
+    owner: supportbpk
+    group: supportbpk
+    mode: '0700'
+
+- name: Set supportbpk authorized key
+  ansible.builtin.copy:
+    content: "{{ lookup('file', '/home/h4ckm1n/DevOps/Playbook/broadpeak/cockpit/roles/userconf/files/supportbpk.pub') }}"
+    dest: /home/supportbpk/.ssh/authorized_keys
+    owner: supportbpk
+    group: supportbpk
+    mode: '0600'
+
+- name: list user directory
+  ansible.builtin.file:
+    path: /opt/supportbpk
+    state: directory
+    owner: supportbpk
+    group: supportbpk
+    mode: '0755'
+
+- name: Install sudo package
+  ansible.builtin.package:
+    name: sudo
+    state: present
+
+- name: Allow supportbpk to have sudo access
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^supportbpk'
+    line: 'supportbpk ALL=(ALL) NOPASSWD:ALL'
+    validate: 'visudo -cf %s'
