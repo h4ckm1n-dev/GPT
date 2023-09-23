@@ -1,4 +1,4 @@
-log_exporter_command: "/usr/bin/python3 /opt/support/log_exporter/BKS100_support.py >> /var/log/log_exporter/BKM100_support.log 2>&1"
+log_exporter_command: "/usr/bin/python3 /opt/support/log_exporter/BKM100_support.py >> /var/log/log_exporter/BKM100_support.log 2>&1"
 
 cron_jobs:
   - name: "log_exporter_retry.sh weekday"
@@ -8,6 +8,7 @@ cron_jobs:
     day: "*"
     weekday: "1-5"
     job: "/usr/local/bin/log_exporter/log_exporter_retry.sh -scp > /dev/null 2>&1"
+    
   - name: "log_exporter.sh weekday"
     user: root
     minute: "30"
